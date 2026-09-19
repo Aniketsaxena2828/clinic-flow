@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import type { StringValue } from 'ms';
 
 export interface TokenPayload {
   userId: string;
@@ -12,11 +13,11 @@ export const generateTokens = (payload: TokenPayload) => {
   const refreshSecret = process.env.JWT_REFRESH_SECRET || 'clinicflow_refresh_secret_super_key_2026_y654';
 
   const accessToken = jwt.sign(payload, accessSecret, {
-    expiresIn: (process.env.JWT_ACCESS_EXPIRES_IN || '15m') as string
+    expiresIn: (process.env.JWT_ACCESS_EXPIRES_IN || '15m') as StringValue
   });
 
   const refreshToken = jwt.sign(payload, refreshSecret, {
-    expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN || '7d') as string
+    expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN || '7d') as StringValue
   });
 
   return { accessToken, refreshToken };

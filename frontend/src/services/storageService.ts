@@ -362,7 +362,7 @@ export const filterNotificationsByPreferences = (
 ): NotificationItem[] => {
   if (!prefs) return notifs;
   return notifs.filter((n) => {
-    const isCritical = n.priority === 'critical' || (n.type === 'system' && n.priority === 'critical');
+    const isCritical = n.priority === 'critical';
     if (isCritical) return true;
 
     if (!prefs.masterEnabled) {

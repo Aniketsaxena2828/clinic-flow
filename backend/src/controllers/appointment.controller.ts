@@ -32,7 +32,8 @@ export class AppointmentController {
         req.params.id,
         req.body.status,
         req.user!.userId,
-        req.user!.email
+        req.user!.email,
+        req.body
       );
       res.status(200).json({ success: true, message: `Appointment status updated to ${req.body.status}`, data: appointment });
     } catch (error) {

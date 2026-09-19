@@ -82,26 +82,43 @@ export class AppointmentService {
         clinicId,
         $or: [{ _id: data.doctorId }, { email: data.doctorId }]
       }).catch(() => null);
+
+      if (doctor) {
+        const docStatus = (doctor.status || 'active').toLowerCase();
+        if (docStatus === 'inactive') {
+          throw { statusCode: 400, message: 'Cannot book appointment with an inactive doctor. Please select an active doctor.' };
+        }
+      }
     }
     if (!doctor && data.doctorName) {
       doctor = await Doctor.findOne({ clinicId, name: data.doctorName }).catch(() => null);
+      if (doctor) {
+        const docStatus = (doctor.status || 'active').toLowerCase();
+        if (docStatus === 'inactive') {
+          throw { statusCode: 400, message: 'Cannot book appointment with an inactive doctor. Please select an active doctor.' };
+        }
+      }
     }
     if (!doctor) {
       // Fallback: Pick the first active doctor for this clinic if none specified
       doctor = await Doctor.findOne({ clinicId, status: 'active' }).catch(() => null);
+    }
+    if (!doctor) {
+      throw { statusCode: 400, message: 'No active doctor found for this clinic. Please add or activate a doctor first.' };
     }
 
     const patientId = patient.id || patient._id || patient.patientId || data.patientId;
     const patientName = patient.name || data.patientName || 'Registered Patient';
     const patientPhone = patient.phone || data.patientPhone || '+91 98765 43210';
 
-    const doctorId = doctor ? (doctor.id || doctor._id || data.doctorId) : (data.doctorId || 'doc-default');
-    const doctorName = doctor ? doctor.name : (data.doctorName || 'Attending Doctor');
-    const doctorSpecialization = doctor?.specialization || data.doctorSpecialization || 'General Medicine';
+    const doctorId = doctor.id || doctor._id || data.doctorId;
+    const doctorName = doctor.name || (data.doctorName || 'Attending Doctor');
+    const doctorSpecialization = doctor.specialization || data.doctorSpecialization || 'General Medicine';
 
     const todayDate = data.date || new Date().toISOString().split('T')[0];
     const tokenNumber = await this.generateTokenNumber(clinicId, doctorId.toString(), todayDate);
     const appointmentId = await this.generateAppointmentId(clinicId);
+    const nowIso = new Date().toISOString();
 
     const appointment = await Appointment.create({
       clinicId,
@@ -119,7 +136,8 @@ export class AppointmentService {
       reasonForVisit: data.reasonForVisit || 'Routine Consultation',
       notes: data.notes || '',
       status: 'Scheduled',
-      paymentStatus: 'Pending'
+      paymentStatus: 'Pending',
+      bookedAt: data.bookedAt || nowIso
     }, clinicId);
 
     await AuditLog.create({
@@ -142,10 +160,58 @@ export class AppointmentService {
     return appointment;
   }
 
-  static async updateStatus(clinicId: string, id: string, status: string, userId: string, userEmail: string) {
+  static async updateStatus(clinicId: string, id: string, status: string, userId: string, userEmail: string, metadata?: any) {
+    const existing = await Appointment.findOne({
+      clinicId,
+      $or: [{ _id: id }, { id }]
+    });
+
+    if (!existing) {
+      throw { statusCode: 404, message: 'Appointment not found.' };
+    }
+
+    const nowIso = new Date().toISOString();
+    const updateData: any = { status };
+
+    // Ensure bookedAt is present
+    if (!existing.bookedAt) {
+      updateData.bookedAt = existing.createdAt || nowIso;
+    }
+
+    // Lifecycle timestamps based on status transitions
+    if (status === 'Checked In' || status === 'Checked-In') {
+      if (!existing.checkedInAt) {
+        updateData.checkedInAt = nowIso;
+      }
+    } else if (status === 'In Consultation') {
+      if (!existing.consultationStartedAt) {
+        updateData.consultationStartedAt = nowIso;
+      }
+      if (!existing.checkedInAt && !updateData.checkedInAt) {
+        updateData.checkedInAt = nowIso;
+      }
+    } else if (status === 'Completed') {
+      if (!existing.completedAt) {
+        updateData.completedAt = nowIso;
+      }
+      if (!existing.consultationStartedAt && !updateData.consultationStartedAt) {
+        updateData.consultationStartedAt = nowIso;
+      }
+      if (!existing.checkedInAt && !updateData.checkedInAt) {
+        updateData.checkedInAt = nowIso;
+      }
+    } else if (status === 'Cancelled') {
+      if (!existing.cancelledAt) {
+        updateData.cancelledAt = nowIso;
+      }
+      if (metadata?.cancellationReason || metadata?.reason) {
+        updateData.cancellationReason = metadata.cancellationReason || metadata.reason;
+      }
+    }
+
     const appointment = await Appointment.findOneAndUpdate(
-      { _id: id, clinicId },
-      { status },
+      { _id: existing._id || existing.id, clinicId },
+      updateData,
       { new: true }
     );
 

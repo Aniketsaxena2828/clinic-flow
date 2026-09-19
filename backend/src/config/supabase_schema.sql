@@ -181,6 +181,12 @@ CREATE TABLE IF NOT EXISTS appointments (
     reason_for_visit TEXT,
     notes TEXT,
     payment_status TEXT NOT NULL DEFAULT 'Pending',
+    booked_at TIMESTAMPTZ,
+    checked_in_at TIMESTAMPTZ,
+    consultation_started_at TIMESTAMPTZ,
+    completed_at TIMESTAMPTZ,
+    cancelled_at TIMESTAMPTZ,
+    cancellation_reason TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT uq_appointments_clinic_appointment_id UNIQUE (clinic_id, appointment_id)
@@ -189,6 +195,17 @@ CREATE TABLE IF NOT EXISTS appointments (
 CREATE INDEX IF NOT EXISTS idx_appointments_clinic_id ON appointments(clinic_id);
 CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(clinic_id, date);
 CREATE INDEX IF NOT EXISTS idx_appointments_doctor_date ON appointments(clinic_id, doctor_id, date);
+
+-- ==============================================================================
+-- MIGRATION: Add lifecycle timestamp columns to existing appointments tables
+-- Safe to re-run: ALTER TABLE ... ADD COLUMN IF NOT EXISTS is idempotent
+-- ==============================================================================
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS booked_at TIMESTAMPTZ;
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS checked_in_at TIMESTAMPTZ;
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS consultation_started_at TIMESTAMPTZ;
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS completed_at TIMESTAMPTZ;
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMPTZ;
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS cancellation_reason TEXT;
 
 -- ==============================================================================
 -- 8. PRESCRIPTIONS TABLE

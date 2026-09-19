@@ -37,11 +37,11 @@ export const NotificationsPage: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
-    storageService.fetchNotifications(user?._id).then(notifs => {
+    storageService.fetchNotifications(user?.userId).then(notifs => {
       if (isMounted) setAllNotifs(notifs);
     });
     return () => { isMounted = false; };
-  }, [user?._id, refreshKey]);
+  }, [user?.userId, refreshKey]);
 
   // Multi-Faceted Filtered Notifications
   const filteredNotifications = useMemo(() => {

@@ -9,6 +9,7 @@ export type UserRoleName =
 
 export interface User {
   userId: string;
+  _id?: string;       // optional alias; components use this as a scoped key
   clinicId: string;
   email: string;
   role: UserRoleName;
@@ -25,6 +26,7 @@ export interface Clinic {
   gstNumber?: string;
   specialties: string[];
   subscriptionPlan: 'Free' | 'Pro' | 'Enterprise';
+  subscriptionTier?: string;  // backend field; normalizeClinic maps it to subscriptionPlan
   workingHours: {
     start: string;
     end: string;
@@ -35,6 +37,7 @@ export interface Clinic {
 
 export interface Patient {
   _id: string;
+  id?: string;        // Supabase returns both id and _id
   clinicId: string;
   patientId: string;
   name: string;
@@ -56,6 +59,7 @@ export interface Patient {
 
 export interface Doctor {
   _id: string;
+  id?: string;        // Supabase returns both id and _id
   clinicId: string;
   userId: string;
   name: string;
@@ -78,12 +82,16 @@ export interface Appointment {
   _id: string;
   clinicId: string;
   queueNumber: number;
+  tokenNumber?: number;
+  appointmentId?: string;   // backend field (e.g. APT-1001)
   patientId: string;
   patientName: string;
   patientPhone: string;
   doctorId: string;
   doctorName: string;
   department: string;
+  date?: string;            // backend field (YYYY-MM-DD)
+  timeSlot?: string;        // backend field (e.g. "09:30 AM")
   appointmentDate: string;
   appointmentTime: string;
   type: AppointmentType;

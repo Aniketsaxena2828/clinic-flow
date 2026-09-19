@@ -62,7 +62,7 @@ export const SettingsPage: React.FC = () => {
 
   // Per-User Notification Preferences State
   const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences>(
-    storageService.getNotificationPreferences(user?._id)
+    storageService.getNotificationPreferences(user?.userId)
   );
 
   // Staff List for Users & Access Tab
@@ -83,7 +83,7 @@ export const SettingsPage: React.FC = () => {
       try {
         const [loadedSettings, userPrefs, staffList] = await Promise.all([
           storageService.fetchSettings(),
-          storageService.fetchNotificationPreferences(user?._id),
+          storageService.fetchNotificationPreferences(user?.userId),
           storageService.fetchStaff()
         ]);
         if (isMounted) {
@@ -99,7 +99,7 @@ export const SettingsPage: React.FC = () => {
     };
     loadAllSettings();
     return () => { isMounted = false; };
-  }, [user?._id]);
+  }, [user?.userId]);
 
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,7 +108,7 @@ export const SettingsPage: React.FC = () => {
     try {
       await storageService.saveSettings(settings);
       if (activeTab === 'notifications') {
-        await storageService.saveNotificationPreferences(user?._id, notifPrefs);
+        await storageService.saveNotificationPreferences(user?.userId, notifPrefs);
       }
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 3500);

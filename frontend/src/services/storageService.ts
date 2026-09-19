@@ -190,7 +190,7 @@ export interface LabOrder {
   sampleStatus?: string;
   sampleCollectedAt?: string;
   sampleCollectedBy?: string;
-  status: 'Ordered' | 'Sample Collected' | 'Processing' | 'Result Ready' | 'Report Uploaded';
+  status: 'Ordered' | 'Sample Collected' | 'Processing' | 'Result Ready' | 'Report Uploaded' | 'Cancelled';
   price: number;
   tests?: LabTestItem[];
   results?: LabResultParam[];
@@ -362,7 +362,7 @@ export const filterNotificationsByPreferences = (
 ): NotificationItem[] => {
   if (!prefs) return notifs;
   return notifs.filter((n) => {
-    const isCritical = n.priority === 'critical' || (n.type === 'system' && n.priority === 'high');
+    const isCritical = n.priority === 'critical' || (n.type === 'system' && n.priority === 'critical');
     if (isCritical) return true;
 
     if (!prefs.masterEnabled) {

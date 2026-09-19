@@ -38,11 +38,11 @@ export const Header: React.FC = () => {
   // Fetch notifications on mount and when dropdown opens
   useEffect(() => {
     let isMounted = true;
-    storageService.fetchNotifications(user?._id).then(() => {
+    storageService.fetchNotifications(user?.userId).then(() => {
       if (isMounted) refreshData();
     });
     const interval = setInterval(() => {
-      storageService.fetchNotifications(user?._id).then(() => {
+      storageService.fetchNotifications(user?.userId).then(() => {
         if (isMounted) refreshData();
       });
     }, 30000);
@@ -50,17 +50,17 @@ export const Header: React.FC = () => {
       isMounted = false;
       clearInterval(interval);
     };
-  }, [user?._id, notifOpen]);
+  }, [user?.userId, notifOpen]);
 
   // Fetch Live Notifications and Unread Count
   const notifications: NotificationItem[] = useMemo(
-    () => storageService.getNotifications(user?._id),
-    [user?._id, notifOpen, refreshKey]
+    () => storageService.getNotifications(user?.userId),
+    [user?.userId, notifOpen, refreshKey]
   );
 
   const unreadCount = useMemo(
-    () => storageService.getUnreadNotifCount(user?._id),
-    [user?._id, notifOpen, refreshKey]
+    () => storageService.getUnreadNotifCount(user?.userId),
+    [user?.userId, notifOpen, refreshKey]
   );
 
   // Icon Helper per Notification Type
@@ -130,7 +130,7 @@ export const Header: React.FC = () => {
             <Building2 className="w-4 h-4 text-[#2563EB]" />
             <span className="max-w-[160px] truncate text-[#0F172A] font-semibold">{clinic.name}</span>
             <span className="uppercase text-[10px] bg-[#F0F6FF] text-[#2563EB] border border-[#2563EB]/30 px-2 py-0.5 rounded font-mono font-bold tracking-wider">
-              {clinic.subscriptionTier?.replace('_', ' ') || 'PROFESSIONAL'}
+              {clinic.subscriptionPlan?.replace('_', ' ') || 'PROFESSIONAL'}
             </span>
           </div>
         )}

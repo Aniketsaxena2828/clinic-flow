@@ -191,7 +191,7 @@ export const InvoicePdfModal: React.FC<InvoicePdfModalProps> = ({ bill, onClose 
                 className={`inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-bold ${
                   bill.paymentStatus === 'Paid'
                     ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                    : bill.paymentStatus === 'Partially Paid' || bill.paymentStatus === 'Partial'
+                    : bill.paymentStatus === 'Partially Paid'
                     ? 'bg-amber-50 text-amber-700 border border-amber-200'
                     : 'bg-rose-50 text-rose-700 border border-rose-200'
                 }`}

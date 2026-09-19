@@ -8,8 +8,13 @@ import { AuthService } from '../services/auth.service';
 
 export const seedDemoClinic = async () => {
   try {
-    const existingDemo = await Clinic.findOne({ code: 'demo-clinic' });
-    if (existingDemo) {
+    // Use find() instead of findOne() — the SupabaseRepository.findOne() special-case for
+    // code==='demo-clinic' injects a clinic_id filter which is invalid on the clinics table
+    // (clinics IS the tenant root, it has no clinic_id column), causing it to always return
+    // null even when the record exists. find() has no such special-case.
+    const existingDemos = await Clinic.find({ code: 'demo-clinic' });
+    if (existingDemos && existingDemos.length > 0) {
+      console.log('[Seed] Demo clinic already exists in Supabase — skipping seed.');
       return;
     }
 

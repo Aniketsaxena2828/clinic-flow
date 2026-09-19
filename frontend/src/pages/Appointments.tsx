@@ -107,10 +107,14 @@ export const AppointmentsPage: React.FC = () => {
         setAllPatients(pats || []);
         setAllDoctors(docs || []);
 
-        if (docs && docs.length > 0) {
+        const activeDocs = (docs || []).filter((d: any) => {
+          const s = (d.status || '').toLowerCase();
+          return s === 'active';
+        });
+        if (activeDocs.length > 0) {
           setBookingForm((prev) => ({
             ...prev,
-            doctorId: prev.doctorId || docs[0]._id || docs[0].id || ''
+            doctorId: prev.doctorId || activeDocs[0]._id || activeDocs[0].id || ''
           }));
         }
       }
@@ -332,9 +336,7 @@ export const AppointmentsPage: React.FC = () => {
         status: 'Scheduled',
         reasonForVisit: bookingForm.reasonForVisit || 'Routine Consultation',
         createdAt: new Date().toISOString(),
-        timestamps: {
-          bookedAt: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-        }
+        bookedAt: new Date().toISOString()
       };
 
       await storageService.saveAppointment(newAppt);
@@ -1090,14 +1092,16 @@ export const AppointmentsPage: React.FC = () => {
                     onChange={(e) => setBookingForm({ ...bookingForm, doctorId: e.target.value })}
                     className="w-full glass-input text-xs"
                   >
-                    {allDoctors.map((doc: any) => {
-                      const dId = doc._id || doc.id;
-                      return (
-                        <option key={dId} value={dId}>
-                          {doc.name} ({doc.specialization}) - ₹{doc.consultationFee}
-                        </option>
-                      );
-                    })}
+                    {allDoctors
+                      .filter((doc: any) => (doc.status || '').toLowerCase() === 'active')
+                      .map((doc: any) => {
+                        const dId = doc._id || doc.id;
+                        return (
+                          <option key={dId} value={dId}>
+                            {doc.name} ({doc.specialization}) - ₹{doc.consultationFee}
+                          </option>
+                        );
+                      })}
                   </select>
                 </div>
 
@@ -1209,36 +1213,59 @@ export const AppointmentsPage: React.FC = () => {
 
                 {/* Timeline Box */}
                 <div>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Audit Timestamp Timeline</span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Appointment Timeline</span>
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2 font-mono text-[11px]">
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Booked:</span>
-                      <strong className="text-slate-800">{viewDetailAppt.timestamps?.bookedAt || '09:00 AM'}</strong>
-                    </div>
-                    {viewDetailAppt.timestamps?.confirmedAt && (
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Confirmed:</span>
-                        <strong className="text-blue-600">{viewDetailAppt.timestamps.confirmedAt}</strong>
-                      </div>
-                    )}
-                    {viewDetailAppt.timestamps?.checkedInAt && (
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Checked In:</span>
-                        <strong className="text-amber-600">{viewDetailAppt.timestamps.checkedInAt}</strong>
-                      </div>
-                    )}
-                    {viewDetailAppt.timestamps?.consultationStartedAt && (
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Consultation Started:</span>
-                        <strong className="text-emerald-600">{viewDetailAppt.timestamps.consultationStartedAt}</strong>
-                      </div>
-                    )}
-                    {viewDetailAppt.timestamps?.completedAt && (
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Completed:</span>
-                        <strong className="text-purple-600">{viewDetailAppt.timestamps.completedAt}</strong>
-                      </div>
-                    )}
+                    {(() => {
+                      const fmtTs = (iso?: string) => {
+                        if (!iso) return '—';
+                        try {
+                          return new Date(iso).toLocaleString('en-GB', {
+                            day: '2-digit', month: 'short', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit', hour12: true
+                          });
+                        } catch { return iso; }
+                      };
+                      const appt = viewDetailAppt;
+                      return (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="text-slate-600">Booked:</span>
+                            <strong className="text-slate-800">{fmtTs(appt.bookedAt || appt.createdAt)}</strong>
+                          </div>
+                          {appt.checkedInAt && (
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">Checked In:</span>
+                              <strong className="text-amber-600">{fmtTs(appt.checkedInAt)}</strong>
+                            </div>
+                          )}
+                          {appt.consultationStartedAt && (
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">Consultation Started:</span>
+                              <strong className="text-emerald-600">{fmtTs(appt.consultationStartedAt)}</strong>
+                            </div>
+                          )}
+                          {appt.completedAt && (
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">Visit Completed:</span>
+                              <strong className="text-purple-600">{fmtTs(appt.completedAt)}</strong>
+                            </div>
+                          )}
+                          {appt.cancelledAt && (
+                            <div className="flex flex-col gap-0.5">
+                              <div className="flex justify-between">
+                                <span className="text-slate-600">Cancelled:</span>
+                                <strong className="text-red-500">{fmtTs(appt.cancelledAt)}</strong>
+                              </div>
+                              {appt.cancellationReason && (
+                                <div className="text-slate-500 italic truncate pl-2">
+                                  Reason: {appt.cancellationReason}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
 

@@ -161,7 +161,7 @@ export const Login: React.FC = () => {
               onClick={handleQuickDemo}
               className="text-xs text-[#2563EB] hover:underline font-bold uppercase tracking-wider cursor-pointer"
             >
-              Fill Demo Credentials (demo-clinic)
+              {/* Fill Demo Credentials (demo-clinic) */}
             </button>
           </div>
         </div>

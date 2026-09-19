@@ -75,8 +75,15 @@ export interface Doctor {
   status: 'Active' | 'On Leave' | 'Inactive';
 }
 
-export type AppointmentStatus = 'Scheduled' | 'In-Progress' | 'Completed' | 'Cancelled' | 'No-Show';
-export type AppointmentType = 'Consultation' | 'Follow-up' | 'Routine Checkup' | 'Emergency' | 'Procedure';
+export type AppointmentStatus =
+  | 'Scheduled'
+  | 'Confirmed'
+  | 'Checked In'
+  | 'In Consultation'
+  | 'Completed'
+  | 'Cancelled'
+  | 'No Show';
+export type AppointmentType = 'Consultation' | 'Follow-up' | 'Routine Checkup' | 'Emergency' | 'Procedure' | 'In-person' | 'Emergency' | 'Follow-up';
 
 export interface Appointment {
   _id: string;
@@ -89,13 +96,15 @@ export interface Appointment {
   patientPhone: string;
   doctorId: string;
   doctorName: string;
+  doctorSpecialization?: string;
   department: string;
   date?: string;            // backend field (YYYY-MM-DD)
   timeSlot?: string;        // backend field (e.g. "09:30 AM")
   appointmentDate: string;
   appointmentTime: string;
-  type: AppointmentType;
+  type: string;
   status: AppointmentStatus;
+  reasonForVisit?: string;
   notes?: string;
   vitals?: {
     bp?: string;
@@ -103,6 +112,13 @@ export interface Appointment {
     temp?: string;
     weight?: string;
   };
+  // Lifecycle timestamps — set once on the backend at the moment the event occurs
+  bookedAt?: string;
+  checkedInAt?: string;
+  consultationStartedAt?: string;
+  completedAt?: string;
+  cancelledAt?: string;
+  cancellationReason?: string;
   createdAt?: string;
 }
 

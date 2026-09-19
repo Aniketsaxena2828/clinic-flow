@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { Bill } from '../models/Bill';
+import { Bill, IBill } from '../models/Bill';
 import { Appointment } from '../models/Appointment';
 import { Patient } from '../models/Patient';
-import { Doctor } from '../models/Doctor';
+import { Doctor, IDoctor } from '../models/Doctor';
 import { PharmacyItem } from '../models/PharmacyItem';
 
 export class AnalyticsController {
@@ -19,7 +19,7 @@ export class AnalyticsController {
       let totalRevenue = 0;
       let pendingReceivables = 0;
 
-      bills.forEach(bill => {
+      bills.forEach((bill: IBill) => {
         totalRevenue += Number(bill.paidAmount || 0);
         pendingReceivables += Number(bill.balanceDue || 0);
       });
@@ -29,7 +29,7 @@ export class AnalyticsController {
       const lowStockCount = await PharmacyItem.countDocuments({ clinicId, status: { $in: ['Low Stock', 'Out of Stock'] } });
 
       const doctors = await Doctor.find({ clinicId }).limit(5);
-      const topDoctors = doctors.map(d => ({
+      const topDoctors = (doctors as IDoctor[]).map((d: IDoctor) => ({
         name: d.name,
         specialization: d.specialization,
         consultationFee: d.consultationFee

@@ -208,10 +208,11 @@ export class SupabaseQuery<T = any> {
           for (const [cKey, cVal] of Object.entries(cond)) {
             const col = cKey === '_id' ? 'id' : toSnakeCase(cKey);
             if (typeof cVal === 'object' && cVal !== null) {
-              if (cVal.$regex) {
-                orConditions.push(`${col}.ilike.%25${encodeURIComponent(cVal.$regex)}%25`);
-              } else if (cVal.$in && Array.isArray(cVal.$in)) {
-                orConditions.push(`${col}.in.(${cVal.$in.map((v: any) => encodeURIComponent(v)).join(',')})`);
+              const cValObj = cVal as Record<string, any>;
+              if (cValObj.$regex) {
+                orConditions.push(`${col}.ilike.%25${encodeURIComponent(cValObj.$regex)}%25`);
+              } else if (cValObj.$in && Array.isArray(cValObj.$in)) {
+                orConditions.push(`${col}.in.(${cValObj.$in.map((v: any) => encodeURIComponent(v)).join(',')})`);
               }
             } else {
               orConditions.push(`${col}.eq.${encodeURIComponent(String(cVal))}`);
@@ -227,22 +228,23 @@ export class SupabaseQuery<T = any> {
       const col = key === '_id' ? 'id' : toSnakeCase(key);
 
       if (val !== null && typeof val === 'object' && !(val instanceof Date)) {
-        if (val.$regex) {
-          this.filters.push({ column: col, operator: 'ilike', value: `%25${encodeURIComponent(val.$regex)}%25` });
-        } else if (val.$in && Array.isArray(val.$in)) {
-          this.filters.push({ column: col, operator: 'in', value: `(${val.$in.map((v: any) => encodeURIComponent(v)).join(',')})` });
-        } else if (val.$nin && Array.isArray(val.$nin)) {
-          this.filters.push({ column: col, operator: 'not.in', value: `(${val.$nin.map((v: any) => encodeURIComponent(v)).join(',')})` });
-        } else if (val.$gt !== undefined) {
-          this.filters.push({ column: col, operator: 'gt', value: val.$gt });
-        } else if (val.$gte !== undefined) {
-          this.filters.push({ column: col, operator: 'gte', value: val.$gte });
-        } else if (val.$lt !== undefined) {
-          this.filters.push({ column: col, operator: 'lt', value: val.$lt });
-        } else if (val.$lte !== undefined) {
-          this.filters.push({ column: col, operator: 'lte', value: val.$lte });
-        } else if (val.$ne !== undefined) {
-          this.filters.push({ column: col, operator: 'neq', value: val.$ne });
+        const valObj = val as Record<string, any>;
+        if (valObj.$regex) {
+          this.filters.push({ column: col, operator: 'ilike', value: `%25${encodeURIComponent(valObj.$regex)}%25` });
+        } else if (valObj.$in && Array.isArray(valObj.$in)) {
+          this.filters.push({ column: col, operator: 'in', value: `(${valObj.$in.map((v: any) => encodeURIComponent(v)).join(',')})` });
+        } else if (valObj.$nin && Array.isArray(valObj.$nin)) {
+          this.filters.push({ column: col, operator: 'not.in', value: `(${valObj.$nin.map((v: any) => encodeURIComponent(v)).join(',')})` });
+        } else if (valObj.$gt !== undefined) {
+          this.filters.push({ column: col, operator: 'gt', value: valObj.$gt });
+        } else if (valObj.$gte !== undefined) {
+          this.filters.push({ column: col, operator: 'gte', value: valObj.$gte });
+        } else if (valObj.$lt !== undefined) {
+          this.filters.push({ column: col, operator: 'lt', value: valObj.$lt });
+        } else if (valObj.$lte !== undefined) {
+          this.filters.push({ column: col, operator: 'lte', value: valObj.$lte });
+        } else if (valObj.$ne !== undefined) {
+          this.filters.push({ column: col, operator: 'neq', value: valObj.$ne });
         }
       } else if (val === null) {
         this.filters.push({ column: col, operator: 'is', value: 'null' });

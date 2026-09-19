@@ -143,11 +143,16 @@ export class UserService {
       { _id: userId, clinicId },
       { status },
       { new: true }
-    ).select('-passwordHash -refreshToken');
+    );
 
     if (!user) {
       throw { statusCode: 404, message: 'Staff member not found.' };
     }
+
+    // Strip sensitive fields before returning (equivalent to .select('-passwordHash -refreshToken'))
+    const userObj = user.toObject ? user.toObject() : { ...user };
+    delete userObj.passwordHash;
+    delete userObj.refreshToken;
 
     await AuditLog.create({
       clinicId,
@@ -158,6 +163,6 @@ export class UserService {
       details: { targetUserId: userId }
     });
 
-    return user;
+    return userObj;
   }
 }

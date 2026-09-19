@@ -1,0 +1,10 @@
+export { PatientsPage } from './Patients';
+export { DoctorsPage } from './Doctors';
+export { AppointmentsPage } from './Appointments';
+export { StaffPage } from './Staff';
+export { SettingsPage } from './Settings';
+export { DoctorConsultation as PrescriptionsPage } from './Consultation/DoctorConsultation';
+export { BillingList as BillingPage } from './Billing/BillingList';
+export { PharmacyInventory as PharmacyPage } from './Pharmacy/PharmacyInventory';
+export { PharmacyInventory as InventoryPage } from './Pharmacy/PharmacyInventory';
+export { AnalyticsDashboard as AnalyticsPage } from './Analytics/AnalyticsDashboard';

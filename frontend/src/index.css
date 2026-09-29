@@ -203,6 +203,14 @@
 .btn-secondary:active {
   transform: scale(0.98);
 }
+
+/* Responsive table container — allows horizontal scroll on mobile
+   without causing the entire page to overflow */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 }
 
 /* KPI Number Standardization */

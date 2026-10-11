@@ -2,27 +2,25 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { storageService, NotificationItem } from '../../services/storageService';
+import { openMobileSidebar } from './Sidebar';
 import {
   Search,
   Bell,
   Building2,
-  User as UserIcon,
   LogOut,
   Shield,
   ChevronDown,
-  Check,
   AlertTriangle,
   Calendar,
   FileText,
   X,
-  Sparkles,
   CheckCircle2,
   Pill,
   FlaskConical,
   IndianRupee,
-  Receipt,
   UserPlus,
-  ArrowRight
+  ArrowRight,
+  Menu
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -109,22 +107,34 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="h-20 border-b border-slate-200/80 bg-white px-8 flex items-center justify-between sticky top-0 z-30 font-sans shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
-      {/* Search Bar */}
-      <div className="flex items-center gap-3 w-96">
-        <div className="relative w-full">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search clinical records, doctors, patients..."
-            className="w-full glass-input pl-10 pr-4 py-2 text-sm text-[#0F172A] placeholder-slate-400 outline-none"
-          />
+    <header className="h-14 sm:h-16 md:h-20 border-b border-slate-200/80 bg-white px-3 sm:px-5 md:px-8 flex items-center justify-between sticky top-0 z-30 font-sans shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
+      {/* Left: Hamburger (mobile) + Search */}
+      <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+        {/* Hamburger — mobile only */}
+        <button
+          onClick={() => openMobileSidebar?.()}
+          className="md:hidden p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition shrink-0"
+          aria-label="Open navigation"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
+        {/* Search — hidden on mobile to prevent clipping */}
+        <div className="hidden sm:flex items-center gap-3 w-full max-w-xs md:max-w-sm lg:max-w-md">
+          <div className="relative w-full">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search clinical records, doctors, patients..."
+              className="w-full glass-input pl-10 pr-4 py-2 text-sm text-[#0F172A] placeholder-slate-400 outline-none"
+            />
+          </div>
         </div>
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-5">
-        {/* Active Practice Badge */}
+      <div className="flex items-center gap-2 sm:gap-3 md:gap-5 shrink-0">
+        {/* Active Practice Badge — desktop only */}
         {clinic && (
           <div className="hidden md:flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 text-sm font-medium text-slate-700 shadow-sm">
             <Building2 className="w-4 h-4 text-[#2563EB]" />
@@ -158,7 +168,7 @@ export const Header: React.FC = () => {
           </button>
 
           {notifOpen && (
-            <div className="absolute right-0 mt-3 w-96 bg-white p-4 shadow-2xl z-50 border border-slate-200 rounded-2xl animate-fade-in-scale text-[#0F172A]">
+            <div className="absolute right-0 mt-3 w-[min(24rem,calc(100vw-1rem))] bg-white p-4 shadow-2xl z-50 border border-slate-200 rounded-2xl animate-fade-in-scale text-[#0F172A]">
               <div className="flex items-center justify-between px-1 pb-3 border-b border-slate-200 mb-3">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-[#0F172A] uppercase tracking-wide flex items-center gap-1.5">

@@ -188,8 +188,8 @@ export const SettingsPage: React.FC = () => {
 
       {/* Main Settings Layout (Left-side Nav Tabs + Content Area) */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Navigation Tab Sidebar */}
-        <div className="lg:col-span-1 glass-panel p-2.5 border-slate-200/80 bg-white shadow-sm h-fit space-y-1">
+        {/* Navigation Tab Sidebar / Horizontal Pill Bar on Mobile */}
+        <div className="lg:col-span-1 glass-panel p-2.5 border-slate-200/80 bg-white shadow-sm h-fit flex lg:flex-col overflow-x-auto lg:overflow-visible gap-1 whitespace-nowrap lg:whitespace-normal">
           <button
             onClick={() => setActiveTab('profile')}
             className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 transition cursor-pointer ${

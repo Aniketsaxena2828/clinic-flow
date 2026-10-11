@@ -336,7 +336,7 @@ export const DoctorsPage: React.FC = () => {
       </div>
 
       {/* 2. Summary Dashboard Metrics Ribbon */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         <div className="glass-panel p-4 border-slate-200/80 bg-white shadow-sm text-center">
           <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Total Doctors</span>
           <p className="text-2xl font-serif font-bold text-[#0F172A] mt-1 font-mono">{metrics.total}</p>
@@ -780,7 +780,7 @@ export const DoctorsPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 font-mono">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono">
                     <div>
                       <label className="block font-semibold text-slate-700 mb-1 font-sans">Start Working Hour</label>
                       <input
